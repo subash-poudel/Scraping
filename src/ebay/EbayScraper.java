@@ -1,9 +1,12 @@
 package ebay;
 
+import googletrend.GoogleData;
+import googletrend.GoogleParser;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import selenium.Selenium;
 import utils.FileUtils;
 import utils.PrintHelper;
 import utils.Utility;
@@ -11,32 +14,14 @@ import utils.Utility;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Subash on 8/14/16.
  */
 public class EbayScraper {
-    private String outputFileDirectory;
 
-    public String parse(ArrayList<String> searchQuery, String outputFileDirectory) {
-        this.outputFileDirectory = outputFileDirectory;
-        ArrayList<Result> results = new ArrayList<>(searchQuery.size());
-        StringBuilder builder = new StringBuilder();
-        for (String query : searchQuery) {
-            Result result = parseQuery(query);
-            if (result != null) {
-                results.add(result);
-                builder.append(result.getString());
-                builder.append(Data.NEW_LINE);
-            }
-        }
-        String outputFile = outputFileDirectory + File.separator + "ebaysearchresultsubash.txt";
-        FileUtils.writeToFile(outputFile, builder.toString());
-        PrintHelper.print(outputFile);
-        return outputFile;
-    }
-
-    private static Result parseQuery(String query) {
+    public static Result parseQuery(String query) {
         String url = getUrl(query);
         PrintHelper.print(url);
         Connection connection = Utility.getDefaultConnection(url);
@@ -57,10 +42,23 @@ public class EbayScraper {
                         continue;
                     }
                     String name = nameElement.text();
+                    if (name.equals("Price")) {
+                        Result result = new Result(query, datas);
+                        return result;
+                    }
+                    if (name.equals("Condition")) {
+                        continue;
+                    }
                     Data data = new Data(name);
                     Elements itemElements = element.select("span[class=cbx]");
-                    PrintHelper.print(itemElements);
+                    Elements radioButtonElements = element.select("span[class=rbx]");
                     for (Element e : itemElements) {
+                        String item = e.text();
+                        if (item != null) {
+                            data.add(item);
+                        }
+                    }
+                    for (Element e : radioButtonElements) {
                         String item = e.text();
                         if (item != null) {
                             data.add(item);
@@ -77,9 +75,9 @@ public class EbayScraper {
         return null;
     }
 
-    private static String getUrl(String searchItem) {
+    public static String getUrl(String searchItem) {
         String url = "http://www.ebay.com/sch/i.html?_from=R40&_trksid=p2050601.m570.l1313.TR0.TRC0.H0.X" + searchItem + ".TRS0&_nkw=" + searchItem + "&_sacat=0";
-        return url.replaceAll(" ", "%20");
+        return Utility.replaceSpace(url);
     }
 
 }

@@ -28,9 +28,11 @@ public class Ui {
     private JButton inputFileButton;
     private JButton outputFileButton;
     private JButton runButton;
-
+    private JButton seleniumButton;
+    private JPanel seleniumPanel;
     private String inputFilePath;
     private String outPutfilePath;
+    private String seleniumFilePath;
 
     public void setUpUi() {
         prepareGUI();
@@ -40,7 +42,7 @@ public class Ui {
     private void prepareGUI() {
         mainFrame = new JFrame("Java Swing Examples");
         mainFrame.setSize(600, 600);
-        mainFrame.setLayout(new GridLayout(7, 1));
+        mainFrame.setLayout(new GridLayout(8, 1));
         mainFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent windowEvent) {
                 System.exit(0);
@@ -54,6 +56,8 @@ public class Ui {
         inputFileLabel.setSize(400, 100);
         inputFileButton = new JButton("Open Input File");
         outputFileButton = new JButton("Open Output Directory");
+        seleniumButton = new JButton("Select Selenium Driver");
+        seleniumPanel = new JPanel();
         runButton = new JButton("Run");
         inputFilePanel = new JPanel();
         outputFilePanel = new JPanel();
@@ -62,6 +66,8 @@ public class Ui {
         inputFilePanel.setLayout(new FlowLayout());
 
         mainFrame.add(headerLabel);
+        mainFrame.add(seleniumPanel);
+        seleniumPanel.add(seleniumButton);
         mainFrame.add(inputFilePanel);
         mainFrame.add(inputFileLabel);
         inputFilePanel.add(inputFileButton);
@@ -114,52 +120,42 @@ public class Ui {
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (seleniumFilePath == null || seleniumFilePath.isEmpty()) {
+                    statusLabel.setText("Set the selenium file");
+                    return;
+                }
                 if (inputFilePath == null || inputFilePath.isEmpty()) {
                     statusLabel.setText("Choose input file");
                     return;
                 }
-                if (!inputFilePath.endsWith(".csv")) {
-                    statusLabel.setText("Input file should be .txt or .csv extension");
+                if (!inputFilePath.endsWith(".txt")) {
+                    statusLabel.setText("Input file should be .txt");
                     return;
                 }
                 if (outPutfilePath == null || outPutfilePath.isEmpty()) {
                     statusLabel.setText("Choose output directory");
                     return;
                 }
-
-                ArrayList<String> query = readCsv(inputFilePath);
-                if (query != null && !query.isEmpty()) {
-                    setStatus("running");
-                    EbayScraper scraper = new EbayScraper();
-                    String outputPath = scraper.parse(query, outPutfilePath);
-                    setStatus("finished file at  " + outputPath);
+                setStatus("running");
+                ResultCombiner.parse(inputFilePath, outPutfilePath, seleniumFilePath);
+                setStatus("finished file at  " + outPutfilePath);
+            }
+        });
+        seleniumButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int returnVal = fileDialog.showOpenDialog(mainFrame);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    java.io.File file = fileDialog.getSelectedFile();
+                    statusLabel.setText("Selenium File Selected :"
+                            + file.getName());
+                    seleniumFilePath = file.getAbsolutePath();
+                } else {
+                    statusLabel.setText("Open command cancelled by user.");
                 }
             }
         });
         mainFrame.setVisible(true);
-    }
-
-    private ArrayList<String> readCsv(String inputFilePath) {
-        ArrayList<String> list = null;
-        try {
-            Reader in = new FileReader(inputFilePath);
-            Iterable<CSVRecord> records = CSVFormat.RFC4180.parse(in);
-            list = new ArrayList<>(25);
-            for (CSVRecord record : records) {
-                if (record.size() <= 1) {
-                    continue;
-                }
-                String topic = record.get(1);
-                if (topic != null && !topic.isEmpty()) {
-                    list.add(topic);
-                }
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return list;
     }
 
     private synchronized void setStatus(String status) {

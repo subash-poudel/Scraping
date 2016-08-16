@@ -3,6 +3,7 @@ package utils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.WebElement;
 
 /**
  * Created by Subash on 8/2/16.
@@ -17,6 +18,10 @@ public class PrintHelper {
         for (String s : items){
             System.out.println(s);
         }
+    }
+
+    public static void print(WebElement element){
+        System.out.println(element.toString());
     }
 
     public static void print(int message) {

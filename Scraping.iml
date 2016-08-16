@@ -10,5 +10,7 @@
     <orderEntry type="library" name="org.jsoup:jsoup:1.9.2" level="project" />
     <orderEntry type="library" name="com.google.code.gson:gson:2.7" level="project" />
     <orderEntry type="library" name="commons-csv-1" level="project" />
+    <orderEntry type="library" name="org.seleniumhq.selenium:selenium-java:2.8.0" level="project" />
+    <orderEntry type="library" name="commons-lang3-3" level="project" />
   </component>
 </module>

@@ -2,11 +2,17 @@ package utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.oracle.tools.packager.IOUtils;
 import joke.model.Category;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -28,7 +34,6 @@ public class Utility {
     }
 
 
-
     public static Connection getDefaultConnection(String url, String username, String password) {
         String login = username + ":" + password;
         String base64login = Base64.getEncoder().encodeToString(login.getBytes(StandardCharsets.UTF_8));
@@ -39,6 +44,7 @@ public class Utility {
         connection.timeout(DEFAULT_TIME_OUT);
         return connection;
     }
+
     public static String listToString(List<String> list, String separator) {
         StringBuilder builder = new StringBuilder();
         for (String s : list) {
@@ -72,7 +78,7 @@ public class Utility {
         String selector = "";
         for (int i = 0; i < components.length; i++) {
             String component = components[i];
-            if (component == null || component.isEmpty()){
+            if (component == null || component.isEmpty()) {
                 continue;
             }
             System.out.println(component);
@@ -92,12 +98,22 @@ public class Utility {
                     PrintHelper.print(divNumber);
                     selector += ":eq(" + divNumber + ")";
                 }
+            } else {
+                selector += component;
             }
             if (i < components.length - 1) {
                 selector = appendNextElement(selector);
             }
         }
         return selector;
+    }
+
+    public static String replaceSpace(String url) {
+        return url.replaceAll(" ", "%20");
+    }
+
+    public static String replaceSpaceWithPlus(String url) {
+        return url.replaceAll(" ", "+");
     }
 
     private static String appendNextElement(String path) {
@@ -107,4 +123,23 @@ public class Utility {
     public static void printXpathJsoup(String xpath, String jsoup) {
         System.out.println(String.format("xpath=%s jsoup=%s", xpath, jsoup));
     }
+
+    public static String readStringFromUrl(String path) {
+        try {
+            URL url = new URL(path);
+            InputStream is = url.openStream();
+            return convertStreamToString(is);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String convertStreamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
+
 }

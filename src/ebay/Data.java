@@ -10,6 +10,9 @@ public class Data {
     private String name;
     private ArrayList<String> items;
 
+    private static final String[] IGNORED_STRING = {"unbranded", "not specified"};
+
+
     public Data(String name) {
         this.name = name;
         this.items = new ArrayList<>();
@@ -38,11 +41,25 @@ public class Data {
     public String getString() {
         StringBuilder builder = new StringBuilder();
         builder.append(name);
+        builder.append(":");
+        builder.append(NEW_LINE);
         builder.append(NEW_LINE);
         for (String s : items) {
+            if (ignore(s)) {
+                continue;
+            }
             builder.append(s);
             builder.append(NEW_LINE);
         }
         return builder.toString();
+    }
+
+    private boolean ignore(String s) {
+        for (String ignore : IGNORED_STRING) {
+            if (s.equalsIgnoreCase(ignore)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

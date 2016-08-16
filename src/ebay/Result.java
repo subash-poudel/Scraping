@@ -17,7 +17,9 @@ public class Result {
 
     public String getString() {
         StringBuilder builder = new StringBuilder();
+        builder.append(NEW_LINE);
         builder.append(resultQuery);
+        builder.append(NEW_LINE);
         builder.append(NEW_LINE);
         for (Data d : datas) {
             builder.append(d.getString());
