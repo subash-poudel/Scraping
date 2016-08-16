@@ -14,3 +14,7 @@ This is a sample script written in java using jsoup and selenium to extract data
 5. Hit Run
 
 Input file format should be single keyword in each line. No empty lines in between.
+
+Download jar file https://github.com/subash-poudel/Scraping/blob/master/out/artifacts/Scraping_jar/Scraping.jar
+
+Works on Windows/Mac/Linux
